@@ -3,12 +3,13 @@
 # 
 # This class provides a graphical user interface for inspecting zonally-averaged variables for user-defined latitude bands in CLDERA HSW++ datasets
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication
-import matplotlib.pyplot as plt
 import numpy as np
+from PyQt5.QtWidgets import QApplication
+from PyQt5 import QtCore, QtGui, QtWidgets
 from data_handler import data_handler
 from data_downloader import download_data
+from data_plotter import data_plotter
+from util import pyqt_set_trace as set_trace
 
 
 # ==================================================================
@@ -27,6 +28,7 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setEnabled(True)
         self.centralwidget.setObjectName("centralwidget")
+        self.data_handler = None
         
         # set some global attributes
         
@@ -64,6 +66,7 @@ class Ui_MainWindow(object):
         self.anomDefSpinBox.setMinimum(0.1)
         self.anomDefSpinBox.setMaximum(100.0)
         self.anomDefSpinBox.setSingleStep(0.1)
+        self.anomDefSpinBox.setValue(1.0)
         self.anomDefSpinBox.setObjectName("anomDefSpinBox")
         self.anomDefComboBox = QtWidgets.QComboBox(self.optionsPanel)
         self.anomDefComboBox.setGeometry(QtCore.QRect(230, 160, 211, 31))
@@ -214,6 +217,11 @@ class Ui_MainWindow(object):
         self.resetBandsButton.setGeometry(QtCore.QRect(560, 170, 161, 32))
         self.resetBandsButton.setObjectName("resetBandsButton")
 
+        self.plotLimCheckBox = QtWidgets.QCheckBox(self.optionsPanel)
+        self.plotLimCheckBox.setGeometry(QtCore.QRect(480, 200, 261, 20))
+        self.plotLimCheckBox.setChecked(True)
+        self.plotLimCheckBox.setObjectName("plotLimCheckBox")
+
         self.refreshTableButton = QtWidgets.QPushButton(self.optionsPanel)
         self.refreshTableButton.setEnabled(True)
         self.refreshTableButton.setGeometry(QtCore.QRect(20, 239, 221, 31))
@@ -315,8 +323,18 @@ class Ui_MainWindow(object):
         self.plotPanel.setFlat(False)
         self.plotPanel.setObjectName("plotPanel")
         self.plotViewport = QtWidgets.QGraphicsView(self.plotPanel)
-        self.plotViewport.setGeometry(QtCore.QRect(10, 30, 701, 601))
+        self.plotViewport.setGeometry(QtCore.QRect(10, 30, 701, 541))
         self.plotViewport.setObjectName("plotViewport")
+
+        self.plotProgressBar = QtWidgets.QProgressBar(self.plotPanel)
+        self.plotProgressBar.setGeometry(QtCore.QRect(10, 600, 701, 20))
+        self.plotProgressBar.setMouseTracking(False)
+        self.plotProgressBar.setProperty("value", 0)
+        self.plotProgressBar.setInvertedAppearance(False)
+        self.plotProgressBar.setObjectName("plotProgressBar")
+
+
+        # -----------------------------------------------------
         
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -411,6 +429,8 @@ class Ui_MainWindow(object):
         
         self.resetBandsButton.setText(_translate("MainWindow", "reset to defaults"))
 
+        self.plotLimCheckBox.setText(_translate("MainWindow", "Display all band data on common range"))
+
         self.refreshTableButton.setText(_translate("MainWindow", "refresh results table"))
         
         # -------------------------------------------------------
@@ -424,7 +444,7 @@ class Ui_MainWindow(object):
         item = self.resultsTable.verticalHeaderItem(2)
         item.setText(_translate("MainWindow", "Band 2 NH"))
         item = self.resultsTable.verticalHeaderItem(3)
-        item.setText(_translate("MainWindow", "Band 1 Tropics"))
+        item.setText(_translate("MainWindow", "Band 1 (Tropics)"))
         item = self.resultsTable.verticalHeaderItem(4)
         item.setText(_translate("MainWindow", "Band 2 SH"))
         item = self.resultsTable.verticalHeaderItem(5)
@@ -475,6 +495,9 @@ class Ui_MainWindow(object):
 
         # ---- set up results refresh button
         self.refreshTableButton.clicked.connect(self.refresh_results)
+
+        # ---- set up plot generation for clicked table entries
+        self.resultsTable.itemSelectionChanged.connect(self.draw_plot) 
 
 
     
@@ -562,8 +585,9 @@ class Ui_MainWindow(object):
         dh.load_data()
         dh.average_lat_bands(overwrite=True)
         dh.compute_anomalies()
-        dh.compute_benchmark_values()
+        dh.compute_benchmark_values(self.resultsTable)
         dh.make_plots()
+        self.data_handler = dh
 
         # ---- done, set progress bar to 100 if not already done, reset button text
         self.progressBar.setProperty("value", 100)
@@ -574,6 +598,43 @@ class Ui_MainWindow(object):
         item.setText(_translate("MainWindow", "SO2\n({} hPa)".format(self.pressTracerSpinBox.value())))
         item = self.resultsTable.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "SULFATE\n({} hPa)".format(self.pressTracerSpinBox.value())))
+
+        # ---- simulate table cell click to force plot redraw
+        if(self.plotViewport.layout() is not None):
+            self.draw_plot()
+        
+        # ---- change "tropical" cell to "global" if needed
+        item = self.resultsTable.verticalHeaderItem(3)
+        if(self.tropicsSpinBox.value() == 90):
+            item.setText(_translate("MainWindow", "Band 1 (Global)"))
+        else:
+            item.setText(_translate("MainWindow", "Band 1 (Tropics)"))
+    
+    
+    # ==================================================================
+
+     
+    def draw_plot(self):
+        '''
+        Draws matplotlib figures in the plotPanel (right side of the GUI) when clicking 
+        on results table entries
+        '''
+
+        # do nothing if results haven't been run yet
+        if(self.data_handler is None): return
+        
+        self.plotProgressBar.setProperty("value", 0)
+
+        row = self.resultsTable.currentRow()
+        col = self.resultsTable.currentColumn()
+
+        var_name = self.resultsTable.horizontalHeaderItem(col).text().split('\n')[0]
+        band = row 
+        self.data_plotter = data_plotter(var_name, band, self.data_handler, self.plotViewport, 
+                                         self.plotProgressBar, self.plotLimCheckBox.isChecked())
+        self.data_plotter.plot_data()
+        
+        self.plotProgressBar.setProperty("value", 100)
 
 
 

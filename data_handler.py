@@ -3,14 +3,18 @@
 # 
 # This class provides methods for reading and reducing zonally averaged datasets, and communicating results to callers from the GUI
 
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
-import pdb
 import os
 import time
-from PyQt5.QtWidgets import QApplication
 import pathlib
+import numpy as np
+import xarray as xr
+import matplotlib.pyplot as plt
+from PyQt5.QtWidgets import QApplication, QTableWidgetItem
+
+from util import time2day
+from util import raise_error
+from util import pyqt_set_trace as set_trace
+
 from data_downloader import download_data
 
 
@@ -20,6 +24,8 @@ from data_downloader import download_data
 # ---- global vars
 MASTER_VAR_LIST = ['SO2', 'SULFATE', 'AOD', 'T025', 'T050', 'T1000']
 MASTER_COORD_LIST = ['lat', 'lev', 'time']
+MASTER_VAR_FMT = ['{:.2e}', '{:.2e}', '{:.2f}', '{:.1f}', '{:.1f}', '{:.1f}']
+
 DATA_DIR = '{}/data'.format(pathlib.Path(__file__).parent.resolve())
 PROCESSED_DIR = '{}/processed'.format(DATA_DIR)
 DATA_TEMPLATE = {'011423':'HSW_SAI_ne16pg2_L72_1200day_180delay_{ENS}.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc', '030123':''}
@@ -40,7 +46,7 @@ def incr_pbar(pbar):
 
 class data_handler:
     def __init__(self, data_release, dataset, mass_mag, trac_pres, 
-                       anom_base, anom_def, anom_n, band_bounds, pbar, ptext):
+                       anom_base, anom_def, anom_n, band_bounds, pbar, pbutton):
         '''
         This object identifies data files corresponding to the options selected from the GUI, and
         offers methods for initiating computations on the data, exporting data to csv, and rendering plots
@@ -65,20 +71,22 @@ class data_handler:
             List of bounds for four latitude bands, each given as a float np.array of length-2
         pbar : QProgressBar object
             handle to the progress bar object
-        ptext : QPushButton
+        pbutton : QPushButton
             handle to the results refresh button, so its text can be updated
         '''
 
         print('Constructing data handler with options:\n'\
-              'data release: {}\n'\
-              'dataset: {}\n'\
-              'SO2 mass magnitude: {}\n'\
-              'anomaly base: {}\n'\
-              'anomaly definiiton: {} x {}\n'\
-              'latitude bands: {}'.format(data_release, dataset, mass_mag, anom_base, 
-                                          anom_n, anom_def, band_bounds))
+              '    data release: {}\n'\
+              '    dataset: {}\n'\
+              '    pressure level: {}\n'
+              '    SO2 mass magnitude: {}\n'\
+              '    anomaly base: {}\n'\
+              '    anomaly definiiton: {} x {}\n'\
+              '    latitude bands: {}'.format(data_release, dataset, trac_pres, mass_mag, 
+                                              anom_base, anom_n, anom_def, band_bounds))
         self.data_release = data_release
         self.dataset      = dataset
+        self.trac_pres    = trac_pres
         self.mass_mag     = mass_mag
         self.anom_base    = anom_base
         self.anom_n       = anom_n
@@ -100,7 +108,8 @@ class data_handler:
         self.data_avg_band3S = None
         self.data_avg_band4N = None
         self.data_avg_band4S = None
-        
+        self.data_avg_bands  = None
+
         self.anom_base_avg_band1  = None
         self.anom_base_avg_band2N = None
         self.anom_base_avg_band2S = None
@@ -108,6 +117,7 @@ class data_handler:
         self.anom_base_avg_band3S = None
         self.anom_base_avg_band4N = None
         self.anom_base_avg_band4S = None
+        self.anom_base_avg_bands  = None
         
         self.anom_band1  = None
         self.anom_band2N = None
@@ -116,6 +126,9 @@ class data_handler:
         self.anom_band3S = None
         self.anom_band4N = None
         self.anom_band4S = None
+        self.anom_bands  = None
+
+        self.avg_bands_max = None
 
         print('---- data_handler object initialized')
     
@@ -134,6 +147,9 @@ class data_handler:
         self.coords = self.data[MASTER_COORD_LIST]
         self.data = self.data[MASTER_VAR_LIST]
 
+        # take data at requested pressure level for 3d (tracer) fields
+        self.data = self.data.sel({'lev':self.trac_pres}, method='nearest')
+
         print('---- data read from {}'.format(self.data_file))
         incr_pbar(self.pbar)
         
@@ -144,23 +160,36 @@ class data_handler:
         elif(self.anom_base == 'Counterfactual'):
             self.anom_base_file = COUNTER_FACTUAL[self.data_release]
         self.anom_base_data = xr.open_dataset('{}/{}'.format(self.release_dir, self.anom_base_file))
+        
+        # ---- verify data shapes
+        if(self.anom_base == 'Counterfactual'):
+            if(self.anom_base_data.dims != self.data.dims):
+                raise_error('Counterfactual and chosen datasets do not have a matching time dimension!')
+        if(self.anom_base == 'Mean Climate'):
+            if('time' in self.anom_base_data.dims.keys()):
+                if(len(self.anom_base_data['time']) > 1):
+                    raise_error('Mean Climate data has len(time) > 1!')
+                else:
+                    self.anom_base_data = self.anom_base_data.isel(time=0)
       
-        # counter factuals and mean climate files may not have these SAI variables; if not, add zero-fields 
+        # ---- counterfactuals and mean climate files may not have these SAI variables; if not, add zero-fields 
         if 'SO2' not in self.anom_base_data.variables:
-            self.anom_base_data['SO2'] = xr.zeros_like(self.data['SO2'])
-            self.anom_base_data['SO2'].encoding["_FillValue"] = 0.0
+            zeros = xr.zeros_like(self.anom_base_data['T025']).assign_attrs(self.data['SO2'].attrs)
+            self.anom_base_data['SO2'] = zeros
         if 'SULFATE' not in self.anom_base_data.variables:
-            self.anom_base_data['SULFATE'] = xr.zeros_like(self.data['SULFATE'])
-            self.anom_base_data['SULFATE'].encoding["_FillValue"] = 0.0
+            zeros = xr.zeros_like(self.anom_base_data['T025']).assign_attrs(self.data['SULFATE'].attrs)
+            self.anom_base_data['SULFATE'] = zeros
         if 'AOD' not in self.anom_base_data.variables:
-            self.anom_base_data['AOD'] = xr.zeros_like(self.data['AOD'])
-            self.anom_base_data['AOD'].encoding["_FillValue"] = 0.0
-
+            zeros = xr.zeros_like(self.anom_base_data['T025']).assign_attrs(self.data['AOD'].attrs)
+            self.anom_base_data['AOD'] = zeros
+    
         self.anom_base_coords = self.anom_base_data[MASTER_COORD_LIST]
         self.anom_base_data = self.anom_base_data[MASTER_VAR_LIST]
-
+        
         print('---- anomaly base data read from {}'.format(self.anom_base_file))
         incr_pbar(self.pbar)
+
+                
          
     # ==================================================================
     
@@ -179,8 +208,12 @@ class data_handler:
 
         assert self.data is not None, 'Data not loaded! Call self.load_data() before self.average_lat_bands()'
 
-        weights = np.cos(np.deg2rad(self.data['lat']))
-        weights.name = 'weights'
+        # --- weights are taken separately for each dataset, though they should be indentical
+        dweights = np.cos(np.deg2rad(self.data['lat']))
+        dweights.name = 'weights'
+        incr_pbar(self.pbar)
+        aweights = np.cos(np.deg2rad(self.anom_base_data['lat']))
+        aweights.name = 'weights'
         incr_pbar(self.pbar)
         
         #----------------------------
@@ -194,7 +227,7 @@ class data_handler:
             print('read averaged data for band {} from {}'.format(band, fname.split('/')[-1]))
         except FileNotFoundError:
             self.data_avg_band1 = self.data.sel({'lat' : slice( *band)})
-            self.data_avg_band1 = (self.data_avg_band1.weighted(weights)).mean('lat')
+            self.data_avg_band1 = (self.data_avg_band1.weighted(dweights)).mean('lat')
             self.data_avg_band1.to_netcdf(fname)
             print('wrote averaged data for band {} to {}'.format(band, fname.split('/')[-1]))
         incr_pbar(self.pbar)
@@ -208,7 +241,7 @@ class data_handler:
             print('read averaged anomaly base data for band {} from {}'.format(band, fname.split('/')[-1]))
         except FileNotFoundError:
             self.anom_base_avg_band1 = self.anom_base_data.sel({'lat' : slice( *band)})
-            self.anom_base_avg_band1 = (self.anom_base_avg_band1.weighted(weights)).mean('lat')
+            self.anom_base_avg_band1 = (self.anom_base_avg_band1.weighted(aweights)).mean('lat')
             self.anom_base_avg_band1.to_netcdf(fname)
             print('wrote averaged anomaly base data for band {} to {}'.format(band, fname.split('/')[-1]))
         incr_pbar(self.pbar)
@@ -217,7 +250,7 @@ class data_handler:
         #-------------------
         # ---- band 2 - data
         bandN = self.band_bounds[1]
-        bandS = -self.band_bounds[1]
+        bandS = -self.band_bounds[1][::-1]
         fnameN = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.data_file.split('.nc')[0], bandN)
         fnameS = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.data_file.split('.nc')[0], bandS)
         try:
@@ -229,8 +262,8 @@ class data_handler:
         except FileNotFoundError:
             self.data_avg_band2N = self.data.sel({'lat' : slice(*bandN)})
             self.data_avg_band2S = self.data.sel({'lat' : slice(*bandS)})
-            self.data_avg_band2N = (self.data_avg_band2N.weighted(weights)).mean('lat')
-            self.data_avg_band2S = (self.data_avg_band2S.weighted(weights)).mean('lat')
+            self.data_avg_band2N = (self.data_avg_band2N.weighted(dweights)).mean('lat')
+            self.data_avg_band2S = (self.data_avg_band2S.weighted(dweights)).mean('lat')
             self.data_avg_band2N.to_netcdf(fnameN)
             self.data_avg_band2S.to_netcdf(fnameS)
             print('wrote averaged data for band {} to {}'.format(bandN, fnameN.split('/')[-1]))
@@ -239,7 +272,7 @@ class data_handler:
         
         # ---- band 2 - anomaly base
         bandN = self.band_bounds[1]
-        bandS = -self.band_bounds[1]
+        bandS = -self.band_bounds[1][::-1]
         fnameN = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.anom_base_file.split('.nc')[0], bandN)
         fnameS = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.anom_base_file.split('.nc')[0], bandS)
         try:
@@ -251,8 +284,8 @@ class data_handler:
         except FileNotFoundError:
             self.anom_base_avg_band2N = self.anom_base_data.sel({'lat' : slice(*bandN)})
             self.anom_base_avg_band2S = self.anom_base_data.sel({'lat' : slice(*bandS)})
-            self.anom_base_avg_band2N = (self.anom_base_avg_band2N.weighted(weights)).mean('lat')
-            self.anom_base_avg_band2S = (self.anom_base_avg_band2S.weighted(weights)).mean('lat')
+            self.anom_base_avg_band2N = (self.anom_base_avg_band2N.weighted(aweights)).mean('lat')
+            self.anom_base_avg_band2S = (self.anom_base_avg_band2S.weighted(aweights)).mean('lat')
             self.anom_base_avg_band2N.to_netcdf(fnameN)
             self.anom_base_avg_band2S.to_netcdf(fnameS)
             print('wrote averaged anom_base for band {} to {}'.format(bandN, fnameN.split('/')[-1]))
@@ -263,7 +296,7 @@ class data_handler:
         #-------------------
         # ---- band 3 - data
         bandN = self.band_bounds[2]
-        bandS = -self.band_bounds[2]
+        bandS = -self.band_bounds[2][::-1]
         fnameN = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.data_file.split('.nc')[0], bandN)
         fnameS = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.data_file.split('.nc')[0], bandS)
         try:
@@ -275,8 +308,8 @@ class data_handler:
         except FileNotFoundError:
             self.data_avg_band3N = self.data.sel({'lat' : slice(*bandN)})
             self.data_avg_band3S = self.data.sel({'lat' : slice(*bandS)})
-            self.data_avg_band3N = (self.data_avg_band3N.weighted(weights)).mean('lat')
-            self.data_avg_band3S = (self.data_avg_band3S.weighted(weights)).mean('lat')
+            self.data_avg_band3N = (self.data_avg_band3N.weighted(dweights)).mean('lat')
+            self.data_avg_band3S = (self.data_avg_band3S.weighted(dweights)).mean('lat')
             self.data_avg_band3N.to_netcdf(fnameN)
             self.data_avg_band3S.to_netcdf(fnameS)
             print('wrote averaged data for band {} to {}'.format(bandN, fnameN.split('/')[-1]))
@@ -285,7 +318,7 @@ class data_handler:
         
         # ---- band 3 - anomaly base
         bandN = self.band_bounds[2]
-        bandS = -self.band_bounds[2]
+        bandS = -self.band_bounds[2][::-1]
         fnameN = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.anom_base_file.split('.nc')[0], bandN)
         fnameS = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.anom_base_file.split('.nc')[0], bandS)
         try:
@@ -297,8 +330,8 @@ class data_handler:
         except FileNotFoundError:
             self.anom_base_avg_band3N = self.anom_base_data.sel({'lat' : slice(*bandN)})
             self.anom_base_avg_band3S = self.anom_base_data.sel({'lat' : slice(*bandS)})
-            self.anom_base_avg_band3N = (self.anom_base_avg_band3N.weighted(weights)).mean('lat')
-            self.anom_base_avg_band3S = (self.anom_base_avg_band3S.weighted(weights)).mean('lat')
+            self.anom_base_avg_band3N = (self.anom_base_avg_band3N.weighted(aweights)).mean('lat')
+            self.anom_base_avg_band3S = (self.anom_base_avg_band3S.weighted(aweights)).mean('lat')
             self.anom_base_avg_band3N.to_netcdf(fnameN)
             self.anom_base_avg_band3S.to_netcdf(fnameS)
             print('wrote averaged anom_base for band {} to {}'.format(bandN, fnameN.split('/')[-1]))
@@ -308,7 +341,7 @@ class data_handler:
         #-------------------
         # ---- band 4 - data
         bandN = self.band_bounds[3]
-        bandS = -self.band_bounds[3]
+        bandS = -self.band_bounds[3][::-1]
         fnameN = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.data_file.split('.nc')[0], bandN)
         fnameS = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.data_file.split('.nc')[0], bandS)
         try:
@@ -320,8 +353,8 @@ class data_handler:
         except FileNotFoundError:
             self.data_avg_band4N = self.data.sel({'lat' : slice(*bandN)})
             self.data_avg_band4S = self.data.sel({'lat' : slice(*bandS)})
-            self.data_avg_band4N = (self.data_avg_band4N.weighted(weights)).mean('lat')
-            self.data_avg_band4S = (self.data_avg_band4S.weighted(weights)).mean('lat')
+            self.data_avg_band4N = (self.data_avg_band4N.weighted(dweights)).mean('lat')
+            self.data_avg_band4S = (self.data_avg_band4S.weighted(dweights)).mean('lat')
             self.data_avg_band4N.to_netcdf(fnameN)
             self.data_avg_band4S.to_netcdf(fnameS)
             print('wrote averaged data for band {} to {}'.format(bandN, fnameN.split('/')[-1]))
@@ -330,7 +363,7 @@ class data_handler:
         
         # ---- band 4 - anom_base
         bandN = self.band_bounds[3]
-        bandS = -self.band_bounds[3]
+        bandS = -self.band_bounds[3][::-1]
         fnameN = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.anom_base_file.split('.nc')[0], bandN)
         fnameS = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.anom_base_file.split('.nc')[0], bandS)
         try:
@@ -342,12 +375,41 @@ class data_handler:
         except FileNotFoundError:
             self.anom_base_avg_band4N = self.anom_base_data.sel({'lat' : slice(*bandN)})
             self.anom_base_avg_band4S = self.anom_base_data.sel({'lat' : slice(*bandS)})
-            self.anom_base_avg_band4N = (self.anom_base_avg_band4N.weighted(weights)).mean('lat')
-            self.anom_base_avg_band4S = (self.anom_base_avg_band4S.weighted(weights)).mean('lat')
+            self.anom_base_avg_band4N = (self.anom_base_avg_band4N.weighted(aweights)).mean('lat')
+            self.anom_base_avg_band4S = (self.anom_base_avg_band4S.weighted(aweights)).mean('lat')
             self.anom_base_avg_band4N.to_netcdf(fnameN)
             self.anom_base_avg_band4S.to_netcdf(fnameS)
             print('wrote averaged anom_base for band {} to {}'.format(bandN, fnameN.split('/')[-1]))
             print('wrote averaged anom_base for band {} to {}'.format(bandS, fnameS.split('/')[-1]))
+        incr_pbar(self.pbar)
+        
+        # ---- populate band lists for access by the data_plotter
+        self.data_avg_bands      = [self.data_avg_band4N, self.data_avg_band3N,
+                                    self.data_avg_band2N, self.data_avg_band1,
+                                    self.data_avg_band2S, self.data_avg_band3S,
+                                    self.data_avg_band4S]
+        self.anom_base_avg_bands = [self.anom_base_avg_band4N, self.anom_base_avg_band3N,
+                                    self.anom_base_avg_band2N, self.anom_base_avg_band1,
+                                    self.anom_base_avg_band2S, self.anom_base_avg_band3S,
+                                    self.anom_base_avg_band4S]
+        
+        # ---- get min/max values for across bands per-var for access by the data plotter
+        # -- max
+        data_avg_bands_max = [dat.max() for dat in self.data_avg_bands]
+        anom_base_avg_bands_max = [dat.max() for dat in self.anom_base_avg_bands]
+        self.avg_bands_max = {}
+        for var in MASTER_VAR_LIST:
+            tmp = np.hstack([[dat[var] for dat in data_avg_bands_max],
+                             [dat[var] for dat in anom_base_avg_bands_max]])
+            self.avg_bands_max[var] = np.max(tmp)
+        # -- min
+        data_avg_bands_min = [dat.min() for dat in self.data_avg_bands]
+        anom_base_avg_bands_min = [dat.min() for dat in self.anom_base_avg_bands]
+        self.avg_bands_min = {}
+        for var in MASTER_VAR_LIST:
+            tmp = np.hstack([[dat[var] for dat in data_avg_bands_min],
+                             [dat[var] for dat in anom_base_avg_bands_min]])
+            self.avg_bands_min[var] = np.min(tmp)
         incr_pbar(self.pbar)
     
     
@@ -379,19 +441,116 @@ class data_handler:
         self.anom_band4S  = self.data_avg_band4S - self.anom_base_avg_band4S
         print('anomaly computed for band4S')
         incr_pbar(self.pbar)
+        
+        # ---- populate band list for access by the data_plotter
+        self.anom_bands          = [self.anom_band4N, self.anom_band3N,
+                                    self.anom_band2N, self.anom_band1,
+                                    self.anom_band2S, self.anom_band3S,
+                                    self.anom_band4S]
 
     
     # ==================================================================
 
-    def compute_benchmark_values(self):
+    def compute_benchmark_values(self, table):
         '''
         Computes the benchmark values which populate the results table panel of the GUI. These
         benchmarks are defined as:
         - day of anomaly onset
         - max. value post-anomaly onset
         for all variables in the MASTER_VAR_LIST
-        '''
 
+        Parameters
+        ----------
+        table : QTableWidget
+            handle to the QTableWidget object in the GUI where benchmark results should be displayed
+        '''
+        
+        anom_onset_day = 0
+        anom_max = 0
+        
+        for i in range(len(MASTER_VAR_LIST)):
+            
+            # -------- equatorial band
+            var = MASTER_VAR_LIST[i]
+            mask = self.anom_band1[var] > (self.anom_n * self.anom_base_avg_band1[var])
+            idx = (mask == True).argmax(dim='time').values.item()
+            anom_onset_day = time2day(self.anom_band1['time'])[idx]
+            anom_max = np.max(self.data_avg_band1[var].isel({'time':slice(idx, int(1e9))})).values.item()
+
+            # create a QTableWidgetItem with the variable as text
+            result_text = QTableWidgetItem('Day {:.0f}\nMax: {}'.format(anom_onset_day, 
+                                                                        MASTER_VAR_FMT[i].format(anom_max)))
+            # set the item in the table at the current row and column
+            table.setItem(3, i, result_text)
+            incr_pbar(self.pbar)
+            
+            # -------- band2N
+            var = MASTER_VAR_LIST[i]
+            mask = self.anom_band2N[var] > (self.anom_n * self.anom_base_avg_band2N[var])
+            idx = (mask == True).argmax(dim='time').values.item()
+            anom_onset_day = time2day(self.anom_band2N['time'])[idx]
+            anom_max = np.max(self.data_avg_band2N[var].isel({'time':slice(idx, int(1e9))})).values.item()
+            result_text = QTableWidgetItem('Day {:.0f}\nMax: {}'.format(anom_onset_day, 
+                                                                        MASTER_VAR_FMT[i].format(anom_max)))
+            table.setItem(2, i, result_text)
+            incr_pbar(self.pbar)
+            
+            # -------- band2S
+            var = MASTER_VAR_LIST[i]
+            mask = self.anom_band2S[var] > (self.anom_n * self.anom_base_avg_band2S[var])
+            idx = (mask == True).argmax(dim='time').values.item()
+            anom_onset_day = time2day(self.anom_band2S['time'])[idx]
+            anom_max = np.max(self.data_avg_band2S[var].isel({'time':slice(idx, int(1e9))})).values.item()
+            result_text = QTableWidgetItem('Day {:.0f}\nMax: {}'.format(anom_onset_day, 
+                                                                        MASTER_VAR_FMT[i].format(anom_max)))
+            table.setItem(4, i, result_text)
+            incr_pbar(self.pbar)
+            
+            # -------- band3N
+            var = MASTER_VAR_LIST[i]
+            mask = self.anom_band3N[var] > (self.anom_n * self.anom_base_avg_band3N[var])
+            idx = (mask == True).argmax(dim='time').values.item()
+            anom_onset_day = time2day(self.anom_band3N['time'])[idx]
+            anom_max = np.max(self.data_avg_band3N[var].isel({'time':slice(idx, int(1e9))})).values.item()
+            result_text = QTableWidgetItem('Day {:.0f}\nMax: {}'.format(anom_onset_day, 
+                                                                        MASTER_VAR_FMT[i].format(anom_max)))
+            table.setItem(1, i, result_text)
+            incr_pbar(self.pbar)
+            
+            # -------- band3S
+            var = MASTER_VAR_LIST[i]
+            mask = self.anom_band3S[var] > (self.anom_n * self.anom_base_avg_band3S[var])
+            idx = (mask == True).argmax(dim='time').values.item()
+            anom_onset_day = time2day(self.anom_band3S['time'])[idx]
+            anom_max = np.max(self.data_avg_band3S[var].isel({'time':slice(idx, int(1e9))})).values.item()
+            result_text = QTableWidgetItem('Day {:.0f}\nMax: {}'.format(anom_onset_day, 
+                                                                        MASTER_VAR_FMT[i].format(anom_max)))
+            table.setItem(5, i, result_text)
+            incr_pbar(self.pbar)
+            
+            # -------- band4N
+            var = MASTER_VAR_LIST[i]
+            mask = self.anom_band4N[var] > (self.anom_n * self.anom_base_avg_band4N[var])
+            idx = (mask == True).argmax(dim='time').values.item()
+            anom_onset_day = time2day(self.anom_band4N['time'])[idx]
+            anom_max = np.max(self.data_avg_band4N[var].isel({'time':slice(idx, int(1e9))})).values.item()
+            result_text = QTableWidgetItem('Day {:.0f}\nMax: {}'.format(anom_onset_day, 
+                                                                        MASTER_VAR_FMT[i].format(anom_max)))
+            table.setItem(0, i, result_text)
+            incr_pbar(self.pbar)
+            
+            # -------- band4S
+            var = MASTER_VAR_LIST[i]
+            mask = self.anom_band4S[var] > (self.anom_n * self.anom_base_avg_band4S[var])
+            idx = (mask == True).argmax(dim='time').values.item()
+            anom_onset_day = time2day(self.anom_band4S['time'])[idx]
+            anom_max = np.max(self.data_avg_band4S[var].isel({'time':slice(idx, int(1e9))})).values.item()
+            result_text = QTableWidgetItem('Day {:.0f}\nMax: {}'.format(anom_onset_day, 
+                                                                        MASTER_VAR_FMT[i].format(anom_max)))
+            table.setItem(6, i, result_text)
+            incr_pbar(self.pbar)
+            
+            
         
     
     # ==================================================================

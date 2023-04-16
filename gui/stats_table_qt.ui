@@ -645,6 +645,9 @@
        <height>20</height>
       </rect>
      </property>
+     <property name="mouseTracking">
+      <bool>false</bool>
+     </property>
      <property name="value">
       <number>100</number>
      </property>
@@ -701,6 +704,22 @@
      </property>
      <property name="text">
       <string>hPa</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="plotLimCheckBox">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>200</y>
+       <width>261</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Display all band data on common range</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </widget>
@@ -943,8 +962,27 @@
        <x>10</x>
        <y>30</y>
        <width>701</width>
-       <height>601</height>
+       <height>541</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QProgressBar" name="plotProgressBar">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>600</y>
+       <width>701</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="mouseTracking">
+      <bool>false</bool>
+     </property>
+     <property name="value">
+      <number>100</number>
+     </property>
+     <property name="invertedAppearance">
+      <bool>false</bool>
      </property>
     </widget>
    </widget>
