@@ -1,0 +1,903 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1541</width>
+    <height>605</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="animated">
+   <bool>true</bool>
+  </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <widget class="QGroupBox" name="optionsPanel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>781</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
+    </property>
+    <widget class="QComboBox" name="dataReleaseComboBox">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>20</y>
+       <width>311</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="currentText">
+      <string>March release (low variability, 10 members)</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>March release (low variability, 10 members)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>January release (high variability, 5 members)</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="dataReleaseText">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>111</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Data Release:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="anomBaseText">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>130</y>
+       <width>191</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Anomaly Base:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="anomBaseComboBox">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>130</y>
+       <width>311</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="currentText">
+      <string>Counterfactual</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>Counterfactual</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Mean Climate</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="anomDefText">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>160</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Anomaly Definition:</string>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="anomDefSpinBox">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>160</y>
+       <width>68</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.100000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>100.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+    </widget>
+    <widget class="QLabel" name="datasetText">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>50</y>
+       <width>111</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Dataset:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="datasetComboBox">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>50</y>
+       <width>311</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="currentText">
+      <string>ens_mean</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>ens_mean</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ens01</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ens02</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ens03</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ens04</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ens05</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ens06</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ens07</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ens08</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ens09</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ens10</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="magnitudeText">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>80</y>
+       <width>131</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>SO2 Magnitude:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="magnitudeComboBox">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>80</y>
+       <width>311</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="editable">
+      <bool>false</bool>
+     </property>
+     <property name="currentText">
+      <string>0.25X</string>
+     </property>
+     <property name="maxVisibleItems">
+      <number>11</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>0.25X</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>0.5X</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>1.0X</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>1.5X</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>2.0X</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="latBandsText">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>20</y>
+       <width>171</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Latitude Bands (degrees):</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="bandTropicsText">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>50</y>
+       <width>111</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Tropics:</string>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="tropicsSpinBox">
+     <property name="geometry">
+      <rect>
+       <x>560</x>
+       <y>50</y>
+       <width>68</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.500000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>90.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.500000000000000</double>
+     </property>
+     <property name="value">
+      <double>23.500000000000000</double>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="band2SpinBoxL">
+     <property name="geometry">
+      <rect>
+       <x>560</x>
+       <y>80</y>
+       <width>68</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>90.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.500000000000000</double>
+     </property>
+     <property name="value">
+      <double>23.500000000000000</double>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="band2SpinBoxR">
+     <property name="geometry">
+      <rect>
+       <x>670</x>
+       <y>80</y>
+       <width>68</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>90.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.500000000000000</double>
+     </property>
+     <property name="value">
+      <double>35.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="band3SpinBoxL">
+     <property name="geometry">
+      <rect>
+       <x>560</x>
+       <y>110</y>
+       <width>68</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>90.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.500000000000000</double>
+     </property>
+     <property name="value">
+      <double>35.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="band3SpinBoxR">
+     <property name="geometry">
+      <rect>
+       <x>670</x>
+       <y>110</y>
+       <width>68</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>90.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.500000000000000</double>
+     </property>
+     <property name="value">
+      <double>66.500000000000000</double>
+     </property>
+    </widget>
+    <widget class="QLabel" name="band2TextTo">
+     <property name="geometry">
+      <rect>
+       <x>640</x>
+       <y>80</y>
+       <width>21</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>to</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="band3TextTo">
+     <property name="geometry">
+      <rect>
+       <x>640</x>
+       <y>110</y>
+       <width>21</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>to</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="band2Text">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>80</y>
+       <width>111</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Band 2:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="band3Text">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>110</y>
+       <width>111</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Band 3:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="band4Text">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>140</y>
+       <width>111</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Band 4:</string>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="band4SpinBoxL">
+     <property name="geometry">
+      <rect>
+       <x>560</x>
+       <y>140</y>
+       <width>68</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>90.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.500000000000000</double>
+     </property>
+     <property name="value">
+      <double>66.500000000000000</double>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="band4SpinBoxR">
+     <property name="geometry">
+      <rect>
+       <x>670</x>
+       <y>140</y>
+       <width>68</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>90.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.500000000000000</double>
+     </property>
+     <property name="value">
+      <double>90.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="QLabel" name="band4TextTo">
+     <property name="geometry">
+      <rect>
+       <x>640</x>
+       <y>140</y>
+       <width>21</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>to</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="resetBandsButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>560</x>
+       <y>170</y>
+       <width>161</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>reset bands</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="bandTropicsPlusminus">
+     <property name="geometry">
+      <rect>
+       <x>550</x>
+       <y>50</y>
+       <width>21</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>±</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="anomDefComboBox">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>160</y>
+       <width>211</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="currentText">
+      <string>standard dev. from base</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>standard dev. from base</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Kelvin from base</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QPushButton" name="refreshTableButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>210</y>
+       <width>221</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{background-color: lightgreen; color: black;} QPushButton::pressed{background-color : green;}</string>
+     </property>
+     <property name="text">
+      <string>refresh results table</string>
+     </property>
+    </widget>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>220</y>
+       <width>511</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="value">
+      <number>100</number>
+     </property>
+     <property name="invertedAppearance">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="resultsPanel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>250</y>
+      <width>781</width>
+      <height>311</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Results</string>
+    </property>
+    <widget class="QTableWidget" name="resultsTable">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>30</y>
+       <width>691</width>
+       <height>231</height>
+      </rect>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustToContents</enum>
+     </property>
+     <property name="autoScroll">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropOverwriteMode">
+      <bool>false</bool>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="textElideMode">
+      <enum>Qt::ElideMiddle</enum>
+     </property>
+     <property name="showGrid">
+      <bool>true</bool>
+     </property>
+     <property name="gridStyle">
+      <enum>Qt::SolidLine</enum>
+     </property>
+     <property name="cornerButtonEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="rowCount">
+      <number>7</number>
+     </property>
+     <property name="columnCount">
+      <number>6</number>
+     </property>
+     <row>
+      <property name="text">
+       <string>Band 4 NH</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Band 3 NH</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Band 2 NH</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Band 1 Tropics</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Band 2 SH</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Band 3 SH</string>
+      </property>
+     </row>
+     <row>
+      <property name="text">
+       <string>Band 4 SH</string>
+      </property>
+     </row>
+     <column>
+      <property name="text">
+       <string>SO2</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>SULFATE</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>AOD</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>T025</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>T050</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>T1000</string>
+      </property>
+     </column>
+    </widget>
+    <widget class="QPushButton" name="exportCellsButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>270</y>
+       <width>221</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>export data for selected cell</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="exportAllCellsButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>270</y>
+       <width>221</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>export data for all cells</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="helpButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>630</x>
+       <y>270</y>
+       <width>141</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton{background-color: lightblue; color: black;} QPushButton::pressed{background-color : blue;}</string>
+     </property>
+     <property name="text">
+      <string>HELP</string>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QProgressBar" name="exportProgressBar">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>270</y>
+       <width>131</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="value">
+      <number>100</number>
+     </property>
+     <property name="invertedAppearance">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="plotPanel">
+    <property name="geometry">
+     <rect>
+      <x>800</x>
+      <y>0</y>
+      <width>721</width>
+      <height>561</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Plots</string>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+    <widget class="QGraphicsView" name="plotViewport">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>701</width>
+       <height>511</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1541</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
