@@ -21,7 +21,7 @@ class Ui_MainWindow(object):
         '''
         
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1541, 605)
+        MainWindow.resize(1541, 625)
         MainWindow.setAnimated(True)
         MainWindow.setDocumentMode(False)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -240,6 +240,7 @@ class Ui_MainWindow(object):
         self.resultsTable.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.resultsTable.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.resultsTable.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.resultsTable.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.resultsTable.setAutoScroll(True)
         self.resultsTable.setDragDropOverwriteMode(False)
         self.resultsTable.setAlternatingRowColors(True)
@@ -546,9 +547,9 @@ class Ui_MainWindow(object):
         trac_pres = self.pressTracerSpinBox.value()
 
         band1_bounds = np.array([-self.tropicsSpinBox.value(), self.tropicsSpinBox.value()])
-        band2_bounds = np.array([self.band2SpinBoxL.value(), self.band2SpinBoxL.value()])
-        band3_bounds = np.array([self.band3SpinBoxL.value(), self.band3SpinBoxL.value()])
-        band4_bounds = np.array([self.band4SpinBoxL.value(), self.band4SpinBoxL.value()])
+        band2_bounds = np.array([self.band2SpinBoxL.value(), self.band2SpinBoxR.value()])
+        band3_bounds = np.array([self.band3SpinBoxL.value(), self.band3SpinBoxR.value()])
+        band4_bounds = np.array([self.band4SpinBoxL.value(), self.band4SpinBoxR.value()])
         band_bounds  = np.array([band1_bounds, band2_bounds, band3_bounds, band4_bounds])
 
         # ---- call computation functions
