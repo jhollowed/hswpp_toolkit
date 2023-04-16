@@ -21,7 +21,7 @@ class Ui_MainWindow(object):
         '''
         
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1541, 625)
+        MainWindow.resize(1540, 695)
         MainWindow.setAnimated(True)
         MainWindow.setDocumentMode(False)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -231,11 +231,11 @@ class Ui_MainWindow(object):
         # -------------------- results panel --------------------
         
         self.resultsPanel = QtWidgets.QGroupBox(self.centralwidget)
-        self.resultsPanel.setGeometry(QtCore.QRect(10, 280, 781, 311))
+        self.resultsPanel.setGeometry(QtCore.QRect(10, 280, 781, 361))
         self.resultsPanel.setObjectName("resultsPanel")
         self.resultsTable = QtWidgets.QTableWidget(self.resultsPanel)
         self.resultsTable.setEnabled(True)
-        self.resultsTable.setGeometry(QtCore.QRect(40, 30, 691, 231))
+        self.resultsTable.setGeometry(QtCore.QRect(10, 30, 761, 281))
         self.resultsTable.setAutoFillBackground(False)
         self.resultsTable.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.resultsTable.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -278,25 +278,29 @@ class Ui_MainWindow(object):
         self.resultsTable.setHorizontalHeaderItem(4, item)
         item = QtWidgets.QTableWidgetItem()
         self.resultsTable.setHorizontalHeaderItem(5, item)
+        self.resultsTable.horizontalHeader().setDefaultSectionSize(111)
+        self.resultsTable.verticalHeader().setDefaultSectionSize(34)
+        self.resultsTable.horizontalHeader().setStretchLastSection(True)
+        self.resultsTable.verticalHeader().setStretchLastSection(True)
         
         self.exportCellsButton = QtWidgets.QPushButton(self.resultsPanel)
         self.exportCellsButton.setEnabled(True)
-        self.exportCellsButton.setGeometry(QtCore.QRect(40, 270, 221, 32))
+        self.exportCellsButton.setGeometry(QtCore.QRect(40, 320, 221, 32))
         self.exportCellsButton.setObjectName("exportCellsButton")
         self.exportAllCellsButton = QtWidgets.QPushButton(self.resultsPanel)
         self.exportAllCellsButton.setEnabled(True)
-        self.exportAllCellsButton.setGeometry(QtCore.QRect(260, 270, 221, 32))
+        self.exportAllCellsButton.setGeometry(QtCore.QRect(260, 320, 221, 32))
         self.exportAllCellsButton.setObjectName("exportAllCellsButton")
 
         self.exportProgressBar = QtWidgets.QProgressBar(self.resultsPanel)
-        self.exportProgressBar.setGeometry(QtCore.QRect(480, 270, 131, 31))
+        self.exportProgressBar.setGeometry(QtCore.QRect(480, 320, 131, 31))
         self.exportProgressBar.setProperty("value", 0)
         self.exportProgressBar.setInvertedAppearance(False)
         self.exportProgressBar.setObjectName("exportProgressBar")
 
         self.helpButton = QtWidgets.QPushButton(self.resultsPanel)
         self.helpButton.setEnabled(True)
-        self.helpButton.setGeometry(QtCore.QRect(630, 270, 141, 32))
+        self.helpButton.setGeometry(QtCore.QRect(630, 320, 141, 31))
         self.helpButton.setStyleSheet("QPushButton{background-color: lightblue; color: black;} "\
                                       "QPushButton::pressed{background-color : blue;}")
         self.helpButton.setDefault(False)
@@ -307,11 +311,11 @@ class Ui_MainWindow(object):
         # -------------------- plots panel --------------------
         
         self.plotPanel = QtWidgets.QGroupBox(self.centralwidget)
-        self.plotPanel.setGeometry(QtCore.QRect(800, 0, 721, 591))
+        self.plotPanel.setGeometry(QtCore.QRect(800, 0, 721, 641))
         self.plotPanel.setFlat(False)
         self.plotPanel.setObjectName("plotPanel")
         self.plotViewport = QtWidgets.QGraphicsView(self.plotPanel)
-        self.plotViewport.setGeometry(QtCore.QRect(10, 30, 701, 551))
+        self.plotViewport.setGeometry(QtCore.QRect(10, 30, 701, 601))
         self.plotViewport.setObjectName("plotViewport")
         
         MainWindow.setCentralWidget(self.centralwidget)
@@ -428,9 +432,9 @@ class Ui_MainWindow(object):
         item = self.resultsTable.verticalHeaderItem(6)
         item.setText(_translate("MainWindow", "Band 4 SH"))
         item = self.resultsTable.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "SO2"))
+        item.setText(_translate("MainWindow", "SO2\n({} hPa)".format(self.pressTracerSpinBox.value())))
         item = self.resultsTable.horizontalHeaderItem(1)
-        item.setText(_translate("MainWindow", "SULFATE"))
+        item.setText(_translate("MainWindow", "SULFATE\n({} hPa)".format(self.pressTracerSpinBox.value())))
         item = self.resultsTable.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "AOD"))
         item = self.resultsTable.horizontalHeaderItem(3)
@@ -564,6 +568,12 @@ class Ui_MainWindow(object):
         # ---- done, set progress bar to 100 if not already done, reset button text
         self.progressBar.setProperty("value", 100)
         self.refreshTableButton.setText(_translate("MainWindow", "refresh results table"))
+        
+        # ---- update tracer table header text to match selected pressure level
+        item = self.resultsTable.horizontalHeaderItem(0)
+        item.setText(_translate("MainWindow", "SO2\n({} hPa)".format(self.pressTracerSpinBox.value())))
+        item = self.resultsTable.horizontalHeaderItem(1)
+        item.setText(_translate("MainWindow", "SULFATE\n({} hPa)".format(self.pressTracerSpinBox.value())))
 
 
 

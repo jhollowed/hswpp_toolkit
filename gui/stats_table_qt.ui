@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1540</width>
-    <height>648</height>
+    <width>1539</width>
+    <height>694</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -710,7 +710,7 @@
       <x>10</x>
       <y>280</y>
       <width>781</width>
-      <height>311</height>
+      <height>361</height>
      </rect>
     </property>
     <property name="title">
@@ -722,10 +722,10 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>40</x>
+       <x>10</x>
        <y>30</y>
-       <width>691</width>
-       <height>231</height>
+       <width>761</width>
+       <height>281</height>
       </rect>
      </property>
      <property name="autoFillBackground">
@@ -770,6 +770,18 @@
      <property name="columnCount">
       <number>6</number>
      </property>
+     <attribute name="horizontalHeaderDefaultSectionSize">
+      <number>111</number>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderDefaultSectionSize">
+      <number>36</number>
+     </attribute>
+     <attribute name="verticalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
      <row>
       <property name="text">
        <string>Band 4 NH</string>
@@ -807,12 +819,12 @@
      </row>
      <column>
       <property name="text">
-       <string>SO2</string>
+       <string>SO2(50 hPa)</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>SULFATE</string>
+       <string>SULFATE (50 hPa)</string>
       </property>
      </column>
      <column>
@@ -843,7 +855,7 @@
      <property name="geometry">
       <rect>
        <x>40</x>
-       <y>270</y>
+       <y>320</y>
        <width>221</width>
        <height>32</height>
       </rect>
@@ -859,7 +871,7 @@
      <property name="geometry">
       <rect>
        <x>260</x>
-       <y>270</y>
+       <y>320</y>
        <width>221</width>
        <height>32</height>
       </rect>
@@ -875,7 +887,7 @@
      <property name="geometry">
       <rect>
        <x>630</x>
-       <y>270</y>
+       <y>320</y>
        <width>141</width>
        <height>31</height>
       </rect>
@@ -897,7 +909,7 @@
      <property name="geometry">
       <rect>
        <x>480</x>
-       <y>270</y>
+       <y>320</y>
        <width>131</width>
        <height>31</height>
       </rect>
@@ -916,7 +928,7 @@
       <x>800</x>
       <y>0</y>
       <width>721</width>
-      <height>591</height>
+      <height>641</height>
      </rect>
     </property>
     <property name="title">
@@ -931,7 +943,7 @@
        <x>10</x>
        <y>30</y>
        <width>701</width>
-       <height>551</height>
+       <height>601</height>
       </rect>
      </property>
     </widget>
@@ -942,7 +954,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1540</width>
+     <width>1539</width>
      <height>22</height>
     </rect>
    </property>
