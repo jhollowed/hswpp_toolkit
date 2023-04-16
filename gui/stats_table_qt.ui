@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1541</width>
-    <height>605</height>
+    <width>1540</width>
+    <height>648</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
       <x>10</x>
       <y>0</y>
       <width>781</width>
-      <height>251</height>
+      <height>281</height>
      </rect>
     </property>
     <property name="title">
@@ -624,9 +624,9 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>210</y>
+       <y>239</y>
        <width>221</width>
-       <height>32</height>
+       <height>31</height>
       </rect>
      </property>
      <property name="styleSheet">
@@ -640,7 +640,7 @@
      <property name="geometry">
       <rect>
        <x>250</x>
-       <y>220</y>
+       <y>250</y>
        <width>511</width>
        <height>20</height>
       </rect>
@@ -652,12 +652,63 @@
       <bool>false</bool>
      </property>
     </widget>
+    <widget class="QLabel" name="pressTracerText">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>200</y>
+       <width>161</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Pressure level for tracers:</string>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="pressTracerSpinBox">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>200</y>
+       <width>68</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>0</number>
+     </property>
+     <property name="minimum">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>1000.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="value">
+      <double>50.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="QLabel" name="pressTracerUnitText">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>200</y>
+       <width>161</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>hPa</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="resultsPanel">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>250</y>
+      <y>280</y>
       <width>781</width>
       <height>311</height>
      </rect>
@@ -826,7 +877,7 @@
        <x>630</x>
        <y>270</y>
        <width>141</width>
-       <height>32</height>
+       <height>31</height>
       </rect>
      </property>
      <property name="styleSheet">
@@ -865,7 +916,7 @@
       <x>800</x>
       <y>0</y>
       <width>721</width>
-      <height>561</height>
+      <height>591</height>
      </rect>
     </property>
     <property name="title">
@@ -880,7 +931,7 @@
        <x>10</x>
        <y>30</y>
        <width>701</width>
-       <height>511</height>
+       <height>551</height>
       </rect>
      </property>
     </widget>
@@ -891,7 +942,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1541</width>
+     <width>1540</width>
      <height>22</height>
     </rect>
    </property>

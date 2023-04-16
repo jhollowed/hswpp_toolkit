@@ -4,9 +4,11 @@
 # This class provides a graphical user interface for inspecting zonally-averaged variables for user-defined latitude bands in CLDERA HSW++ datasets
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QApplication
 import matplotlib.pyplot as plt
 import numpy as np
 from data_handler import data_handler
+from data_downloader import download_data
 
 
 # ==================================================================
@@ -32,7 +34,7 @@ class Ui_MainWindow(object):
         # -------------------- options panel --------------------
 
         self.optionsPanel = QtWidgets.QGroupBox(self.centralwidget)
-        self.optionsPanel.setGeometry(QtCore.QRect(10, 0, 781, 251))
+        self.optionsPanel.setGeometry(QtCore.QRect(10, 0, 781, 281))
         self.optionsPanel.setCheckable(False)
         self.optionsPanel.setObjectName("optionsPanel")
         
@@ -103,6 +105,21 @@ class Ui_MainWindow(object):
         self.magnitudeComboBox.addItem("")
         self.magnitudeComboBox.addItem("")
         self.magnitudeComboBox.addItem("")
+
+        self.pressTracerText = QtWidgets.QLabel(self.optionsPanel)
+        self.pressTracerText.setGeometry(QtCore.QRect(30, 200, 161, 31))
+        self.pressTracerText.setObjectName("pressTracerText")
+        self.pressTracerSpinBox = QtWidgets.QDoubleSpinBox(self.optionsPanel)
+        self.pressTracerSpinBox.setGeometry(QtCore.QRect(190, 200, 68, 31))
+        self.pressTracerSpinBox.setDecimals(0)
+        self.pressTracerSpinBox.setMinimum(1.0)
+        self.pressTracerSpinBox.setMaximum(1000.0)
+        self.pressTracerSpinBox.setSingleStep(1.0)
+        self.pressTracerSpinBox.setProperty("value", 50.0)
+        self.pressTracerSpinBox.setObjectName("pressTracerSpinBox")
+        self.pressTracerUnitText = QtWidgets.QLabel(self.optionsPanel)
+        self.pressTracerUnitText.setGeometry(QtCore.QRect(260, 200, 161, 31))
+        self.pressTracerUnitText.setObjectName("pressTracerUnitText")
         
         self.latBandsText = QtWidgets.QLabel(self.optionsPanel)
         self.latBandsText.setGeometry(QtCore.QRect(480, 20, 171, 31))
@@ -199,13 +216,13 @@ class Ui_MainWindow(object):
 
         self.refreshTableButton = QtWidgets.QPushButton(self.optionsPanel)
         self.refreshTableButton.setEnabled(True)
-        self.refreshTableButton.setGeometry(QtCore.QRect(20, 210, 221, 32))
+        self.refreshTableButton.setGeometry(QtCore.QRect(20, 239, 221, 31))
         self.refreshTableButton.setStyleSheet("QPushButton{background-color: lightgreen; color: black;} "\
                                               "QPushButton::pressed{background-color : green;}")
         self.refreshTableButton.setObjectName("refreshTableButton")
 
         self.progressBar = QtWidgets.QProgressBar(self.optionsPanel)
-        self.progressBar.setGeometry(QtCore.QRect(250, 220, 511, 20))
+        self.progressBar.setGeometry(QtCore.QRect(250, 250, 511, 20))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setInvertedAppearance(False)
         self.progressBar.setObjectName("progressBar")
@@ -214,7 +231,7 @@ class Ui_MainWindow(object):
         # -------------------- results panel --------------------
         
         self.resultsPanel = QtWidgets.QGroupBox(self.centralwidget)
-        self.resultsPanel.setGeometry(QtCore.QRect(10, 250, 781, 311))
+        self.resultsPanel.setGeometry(QtCore.QRect(10, 280, 781, 311))
         self.resultsPanel.setObjectName("resultsPanel")
         self.resultsTable = QtWidgets.QTableWidget(self.resultsPanel)
         self.resultsTable.setEnabled(True)
@@ -289,11 +306,11 @@ class Ui_MainWindow(object):
         # -------------------- plots panel --------------------
         
         self.plotPanel = QtWidgets.QGroupBox(self.centralwidget)
-        self.plotPanel.setGeometry(QtCore.QRect(800, 0, 721, 561))
+        self.plotPanel.setGeometry(QtCore.QRect(800, 0, 721, 591))
         self.plotPanel.setFlat(False)
         self.plotPanel.setObjectName("plotPanel")
         self.plotViewport = QtWidgets.QGraphicsView(self.plotPanel)
-        self.plotViewport.setGeometry(QtCore.QRect(10, 30, 701, 511))
+        self.plotViewport.setGeometry(QtCore.QRect(10, 30, 701, 551))
         self.plotViewport.setObjectName("plotViewport")
         
         MainWindow.setCentralWidget(self.centralwidget)
@@ -369,6 +386,9 @@ class Ui_MainWindow(object):
         self.magnitudeComboBox.setItemText(5, _translate("MainWindow", "1.50X"))
         self.magnitudeComboBox.setItemText(6, _translate("MainWindow", "2.00X"))
         self.magnitudeComboBox.setCurrentIndex(3)
+
+        self.pressTracerText.setText(_translate("MainWindow", "Pressure level for tracers:"))
+        self.pressTracerUnitText.setText(_translate("MainWindow", "hPa"))
         
         self.latBandsText.setText(_translate("MainWindow", "Latitude Bands (degrees):"))
         
@@ -504,18 +524,26 @@ class Ui_MainWindow(object):
         
         _translate = QtCore.QCoreApplication.translate
 
-        # ---- reset progress bars to zero, change button text
+        # ---- download data if needed
+        self.progressBar.setProperty("value", 0)
+        self.exportProgressBar.setProperty("value", 0)
+        self.refreshTableButton.setText(_translate("MainWindow", "fetching data..."))
+        QApplication.processEvents() 
+        download_data(self.progressBar)
+        
+        # ---- gather currently selected options
         self.progressBar.setProperty("value", 0)
         self.exportProgressBar.setProperty("value", 0)
         self.refreshTableButton.setText(_translate("MainWindow", "working..."))
-
-        # ---- gather currently selected options
+        QApplication.processEvents()
+        
         data_release = ['030123', '011423'][self.dataReleaseComboBox.currentIndex()]
         dataset   = str(self.datasetComboBox.currentText())
         mass_mag  = str(self.magnitudeComboBox.currentText())
         anom_base = str(self.anomBaseComboBox.currentText())
         anom_def  = ['std', 'cf'][self.anomDefComboBox.currentIndex()]
         anom_n    = self.anomDefSpinBox.value()
+        trac_pres = self.pressTracerSpinBox.value()
 
         band1_bounds = np.array([-self.tropicsSpinBox.value(), self.tropicsSpinBox.value()])
         band2_bounds = np.array([self.band2SpinBoxL.value(), self.band2SpinBoxL.value()])
@@ -524,8 +552,8 @@ class Ui_MainWindow(object):
         band_bounds  = np.array([band1_bounds, band2_bounds, band3_bounds, band4_bounds])
 
         # ---- call computation functions
-        dh = data_handler(data_release, dataset, mass_mag, 
-                          anom_base, anom_def, anom_n, band_bounds, self.progressBar)
+        dh = data_handler(data_release, dataset, mass_mag, trac_pres, anom_base, anom_def, 
+                          anom_n, band_bounds, self.progressBar, self.refreshTableButton)
         dh.load_data()
         dh.average_lat_bands(overwrite=True)
         dh.compute_anomalies()

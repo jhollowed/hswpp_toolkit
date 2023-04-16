@@ -1,7 +1,7 @@
 # Joe Hollowed
 # University of Michigan 2023
 # 
-# This class provides a graphical user interface for inspecting zonally-averaged variables for user-defined latitude bands in CLDERA HSW++ datasets
+# This class provides methods for reading and reducing zonally averaged datasets, and communicating results to callers from the GUI
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,9 +10,8 @@ import pdb
 import os
 import time
 from PyQt5.QtWidgets import QApplication
-import requests
 import pathlib
-from bs4 import BeautifulSoup
+from data_downloader import download_data
 
 
 # ==================================================================
@@ -22,7 +21,7 @@ from bs4 import BeautifulSoup
 MASTER_VAR_LIST = ['SO2', 'SULFATE', 'AOD', 'T025', 'T050', 'T1000']
 MASTER_COORD_LIST = ['lat', 'lev', 'time']
 DATA_DIR = '{}/data'.format(pathlib.Path(__file__).parent.resolve())
-PROCESSED_DIR = './data/processed'
+PROCESSED_DIR = '{}/processed'.format(DATA_DIR)
 DATA_TEMPLATE = {'011423':'HSW_SAI_ne16pg2_L72_1200day_180delay_{ENS}.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc', '030123':''}
 MEAN_CLIMATE = {'011423':'HSW_ne16pg2_L72_meanClimate.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc', '030123':''}
 COUNTER_FACTUAL = {'011423':'', '030123':''}
@@ -36,62 +35,12 @@ def incr_pbar(pbar):
     QApplication.processEvents()
 
 
-# ---- for downloading data from Google Drive servers on first application run
-def download_data():
-  
-    # point to Google Drive folders for each release
-    releases = ['011423', '030123']
-    dirs = ['{}/release_011423'.format(DATA_DIR), '{}/release_030123'.format(DATA_DIR)]
-    urls = ['https://drive.google.com/drive/folders/1gik5ck-_kwjGx58Xmm2qSFsbqHbgeYPC?usp=share_link',
-            'https://drive.google.com/drive/folders/1a0I0NSRk6YmkY7MmpLFhjC8SzKjCJ38n?usp=share_link']
-    downloaded = 0
-    print('\n---- Downloading data from server...')
-
-    for i in range(len(releases)):
-        release = releases[i]
-        url = urls[i]
-        data_dir = dirs[i]
-        
-        # open remote directory
-        response = requests.get(url)
-        if(response.status_code == 200):
-            # get files in directory
-            soup = BeautifulSoup(response.content, 'html.parser')
-            file_links = soup.find_all('a', {'class':'drive-viewer-link'})
-            print(file_links)from bs4 import BeautifulSoup
-            files = response.json()['files']
-            for fl in files:
-                file_url = file['webContentLink']
-                file_name = file['name']
-                # skip if this file already exists locally
-                if(os.path.isfile('{}/{}'.format(data_dir, file_name))):
-                    continue
-                # or download otherwise
-                else:
-                    print('downloading {}...'.format(file_name))
-                    response = requests.get(file_url)
-                    if(response.status_code == 200):
-                        with open(file_name, 'wb') as f:
-                            f.write(response.content)
-                        downloaded  = downloaded + 1
-                    else:
-                        raise RuntimeError('Error downloading file {}: {}'.format(
-                                                  file_name, response.status_code))
-        else:
-            raise RuntimeError('Error downloading release_{} data: {}'.format(release, response.status_code))
-        
-        if(downloaded > 0):
-            print('--- release_{} data successfully downloaded'.format(release))
-        else:
-            print('--- release_{} data already exists'.format(release))
-    
-    
-
 # ==================================================================
 
 
 class data_handler:
-    def __init__(self, data_release, dataset, mass_mag, anom_base, anom_def, anom_n, band_bounds, pbar):
+    def __init__(self, data_release, dataset, mass_mag, trac_pres, 
+                       anom_base, anom_def, anom_n, band_bounds, pbar, ptext):
         '''
         This object identifies data files corresponding to the options selected from the GUI, and
         offers methods for initiating computations on the data, exporting data to csv, and rendering plots
@@ -104,6 +53,8 @@ class data_handler:
             Name of the dataset to use in the computations
         mass_mag : str
             SO2 injected mass multiplier
+        trac_pres : float
+            pressure at which to take horizontal tracer field (at nearest model level)
         anom_base : str
             Anomaly base dataset name
         anom_def : str
@@ -114,6 +65,8 @@ class data_handler:
             List of bounds for four latitude bands, each given as a float np.array of length-2
         pbar : QProgressBar object
             handle to the progress bar object
+        ptext : QPushButton
+            handle to the results refresh button, so its text can be updated
         '''
 
         print('Constructing data handler with options:\n'\
@@ -165,10 +118,7 @@ class data_handler:
         self.anom_band4S = None
 
         print('---- data_handler object initialized')
-        
-        # check that data exists, if not then download
-        download_data()
-            
+    
     # ==================================================================
 
     def load_data(self):
