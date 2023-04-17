@@ -3,7 +3,9 @@
 # 
 # This class provides a graphical user interface for inspecting zonally-averaged variables for user-defined latitude bands in CLDERA HSW++ datasets
 
+import sys
 import numpy as np
+import xarray as xr
 from PyQt5.QtWidgets import QApplication
 from PyQt5 import QtCore, QtGui, QtWidgets
 from data_handler import data_handler
@@ -323,16 +325,8 @@ class Ui_MainWindow(object):
         self.plotPanel.setFlat(False)
         self.plotPanel.setObjectName("plotPanel")
         self.plotViewport = QtWidgets.QGraphicsView(self.plotPanel)
-        self.plotViewport.setGeometry(QtCore.QRect(10, 30, 701, 541))
+        self.plotViewport.setGeometry(QtCore.QRect(10, 30, 701, 601))
         self.plotViewport.setObjectName("plotViewport")
-
-        self.plotProgressBar = QtWidgets.QProgressBar(self.plotPanel)
-        self.plotProgressBar.setGeometry(QtCore.QRect(10, 600, 701, 20))
-        self.plotProgressBar.setMouseTracking(False)
-        self.plotProgressBar.setProperty("value", 0)
-        self.plotProgressBar.setInvertedAppearance(False)
-        self.plotProgressBar.setObjectName("plotProgressBar")
-
 
         # -----------------------------------------------------
         
@@ -352,6 +346,9 @@ class Ui_MainWindow(object):
         
         # set UI triggers
         self.setTriggers()
+
+        # force initial triggers
+        self.update_data_options(None)
 
 
     # ==================================================================
@@ -484,7 +481,9 @@ class Ui_MainWindow(object):
         '''
         
         # ---- allow data release selection to restrict other options
-        self.dataReleaseComboBox.activated.connect(self.update_data_release_options)
+        self.dataReleaseComboBox.activated.connect(self.update_data_options)
+        self.datasetComboBox.activated.connect(self.update_data_options)
+        self.magnitudeComboBox.activated.connect(self.update_data_options)
 
         # ---- set up latitude band reset button
         defaultBands = [23.5, 23.5, 35.0, 35.0, 66.5, 66.5, 90.0]
@@ -503,29 +502,44 @@ class Ui_MainWindow(object):
     
     
     # ==================================================================
-
     
-    def update_data_release_options(self, index):
+    
+    def update_data_options(self, _):
         '''
         Updates options to only allow seletions available for the currently selected Data Release. This
         is needed since the January and March 2023 HSW++ data releases offer different numbers of ensemble
         members, and different SO2 mass magnitudes
-
-        Parameters
-        ----------
-        index : int
-            the index of the currently selected item in datReleaseComboBox
         '''
-        ensMembersAvailable = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        massMagsAvailable = [0.25, 0.50, 0.90, 1.00, 1.10, 1.50, 2.00]
         
-        if index == 1: # January release (high variability, 5 members)
-            enabledEnsMembers = [1, 2, 3, 4, 5]
-            enabledMassMags = [1.00]
-        elif index == 0: # March release (low variability, 10 members)
-            enabledEnsMembers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-            enabledMassMags = [0.25, 0.50, 0.90, 1.00, 1.10, 1.50, 2.00]
+        # ---- get current selections
+        release_index = self.dataReleaseComboBox.currentIndex()
+        dataset_index = self.datasetComboBox.currentIndex()
+        magnitude_index = self.magnitudeComboBox.currentIndex()
 
+        # ---- limit which ensemble members are available per-release
+        ensMembersAvailable = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        massMagsAvailable   = [0.25, 0.50, 0.90, 1.00, 1.10, 1.50, 2.00]
+        anomBasesAvailable  = ['Counterfactual', 'Mean Climate']
+        anomDefsAvailable    = ['std', 'K']
+        
+        if release_index == 1 and dataset_index != 5: # January release (high variability, 5 members)
+            enabledEnsMembers = [1, 2, 3, 4, 5]
+            enabledMassMags   = [1.00]
+            enabledAnomBases  = ['Mean Climate']
+            if(dataset_index) == 0: enabledAnomDefs   = ['std', 'K']
+            else:                   enabledAnomDefs   = ['K']
+        elif release_index == 1 and dataset_index == 5: # January release ens05
+            enabledEnsMembers = [1, 2, 3, 4, 5]
+            enabledMassMags   = [0.25, 0.5, 1.00, 1.50, 2.00]
+            enabledAnomBases  = ['Counterfactual', 'Mean Climate']
+            enabledAnomDefs   = ['K']
+        elif release_index == 0: # March release (low variability, 10 members)
+            enabledEnsMembers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            enabledMassMags   = [0.25, 0.50, 0.90, 1.00, 1.10, 1.50, 2.00]
+            enabledAnomBases  = ['Counterfactual', 'Mean Climate']
+            enabledAnomDefs   = ['std', 'K']
+
+        # ---- disable options which aren't available
         for i in range(len(ensMembersAvailable)):
             if((i+1) in enabledEnsMembers):
                 self.datasetComboBox.model().item(i+1).setEnabled(True)
@@ -538,8 +552,28 @@ class Ui_MainWindow(object):
             else:
                 self.magnitudeComboBox.model().item(i).setEnabled(False)
         
-        return
-    
+        for i in range(len(anomBasesAvailable)):
+            if(anomBasesAvailable[i] in enabledAnomBases):
+                self.anomBaseComboBox.model().item(i).setEnabled(True)
+            else:
+                self.anomBaseComboBox.model().item(i).setEnabled(False)
+        
+        for i in range(len(anomDefsAvailable)):
+            if(anomDefsAvailable[i] in enabledAnomDefs):
+                self.anomDefComboBox.model().item(i).setEnabled(True)
+            else:
+                self.anomDefComboBox.model().item(i).setEnabled(False)
+        
+        # ---- change selections for options that are no longer available
+        if self.datasetComboBox.currentIndex() not in enabledEnsMembers:
+            self.datasetComboBox.setCurrentIndex(ensMembersAvailable.index(enabledEnsMembers[0]))
+        if massMagsAvailable[self.magnitudeComboBox.currentIndex()] not in enabledMassMags:
+            self.magnitudeComboBox.setCurrentIndex(massMagsAvailable.index(enabledMassMags[0]))
+        if anomBasesAvailable[self.anomBaseComboBox.currentIndex()] not in enabledAnomBases:
+            self.anomBaseComboBox.setCurrentIndex(anomBasesAvailable.index(enabledAnomBases[0]))
+        if  anomDefsAvailable[self.anomDefComboBox.currentIndex()] not in enabledAnomDefs:
+            self.anomDefComboBox.setCurrentIndex(anomDefsAvailable.index(enabledAnomDefs[0]))
+
     
     # ==================================================================
 
@@ -569,7 +603,7 @@ class Ui_MainWindow(object):
         dataset   = str(self.datasetComboBox.currentText())
         mass_mag  = str(self.magnitudeComboBox.currentText())
         anom_base = str(self.anomBaseComboBox.currentText())
-        anom_def  = ['std', 'cf'][self.anomDefComboBox.currentIndex()]
+        anom_def  = ['std', 'K'][self.anomDefComboBox.currentIndex()]
         anom_n    = self.anomDefSpinBox.value()
         trac_pres = self.pressTracerSpinBox.value()
 
@@ -579,14 +613,30 @@ class Ui_MainWindow(object):
         band4_bounds = np.array([self.band4SpinBoxL.value(), self.band4SpinBoxR.value()])
         band_bounds  = np.array([band1_bounds, band2_bounds, band3_bounds, band4_bounds])
 
+        # ---- close any opened files if the table has already been generated
+        if(self.data_handler is not None):
+            print('---- closing previously opened files...')
+            self.data_handler.data.close()
+            self.data_handler.anom_base_data.close()
+            if(self.data_handler.data_has_std): self.data_handler.data_std.close()
+            if(self.data_handler.anom_base_has_std): self.data_handler.anom_base_data_std.close()
+            for ds in self.data_handler.data_avg_bands: 
+                if(ds is not None): ds.close()
+            for ds in self.data_handler.data_std_avg_bands: 
+                if(ds is not None): ds.close()
+            for ds in self.data_handler.anom_base_avg_bands: 
+                if(ds is not None): ds.close()
+            for ds in self.data_handler.anom_base_std_avg_bands: 
+                if(ds is not None): ds.close()
+            
         # ---- call computation functions
         dh = data_handler(data_release, dataset, mass_mag, trac_pres, anom_base, anom_def, 
-                          anom_n, band_bounds, self.progressBar, self.refreshTableButton)
+                          anom_n, band_bounds, self.progressBar, self.refreshTableButton,
+                          overwrite=True)
         dh.load_data()
-        dh.average_lat_bands(overwrite=True)
+        dh.average_lat_bands()
         dh.compute_anomalies()
         dh.compute_benchmark_values(self.resultsTable)
-        dh.make_plots()
         self.data_handler = dh
 
         # ---- done, set progress bar to 100 if not already done, reset button text
@@ -623,18 +673,14 @@ class Ui_MainWindow(object):
         # do nothing if results haven't been run yet
         if(self.data_handler is None): return
         
-        self.plotProgressBar.setProperty("value", 0)
-
         row = self.resultsTable.currentRow()
         col = self.resultsTable.currentColumn()
 
         var_name = self.resultsTable.horizontalHeaderItem(col).text().split('\n')[0]
         band = row 
         self.data_plotter = data_plotter(var_name, band, self.data_handler, self.plotViewport, 
-                                         self.plotProgressBar, self.plotLimCheckBox.isChecked())
+                                         self.plotLimCheckBox.isChecked())
         self.data_plotter.plot_data()
-        
-        self.plotProgressBar.setProperty("value", 100)
 
 
 

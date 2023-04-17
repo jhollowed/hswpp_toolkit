@@ -29,7 +29,7 @@ def pyqt_set_trace():
 
 def raise_error(str):
     '''Print an error message in red'''
-    print('\033[91m{}\033[0m'.format(str))
+    raise RuntimeError('\033[91m{}\033[0m'.format(str))
 
 # ---------------------------------------------------------------------
 
@@ -58,6 +58,7 @@ def time2day(time):
 
 def clear_layout(layout):
     '''
+    Clear a Qt Widget of it's layout and all children
     '''
     if(layout is None): return
     while layout.count():

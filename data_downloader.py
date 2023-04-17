@@ -14,12 +14,17 @@ from PyQt5.QtWidgets import QApplication
 # ---- global vars
 DATA_DIR = '{}/data'.format(pathlib.Path(__file__).parent.resolve())
 INVENTORY ={'011423': {
-                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens01.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40181748',
-                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens02.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40181751',
-                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens04.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40181757',
-                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens03.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40181760',
-                'HSW_ne16pg2_L72_meanClimate.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40181761',
-                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens05.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40181811' },
+                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens02__MSO2_1.00X.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184132',
+                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens01__MSO2_1.00X.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184138',
+                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens03__MSO2_1.00X.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184141',
+                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens04__MSO2_1.00X.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184150',
+                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens05__MSO2_0.25X.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184153',
+                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens05__MSO2_0.50X.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184156',
+                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens05__MSO2_1.00X.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184159',
+                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens05__MSO2_1.50X.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184162',
+                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens05__MSO2_2.00X.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184165',
+                'HSW_ne16pg2_L72_meanClimate.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184167',
+                'HSW_SAI_ne16pg2_L72_1200day_180delay_ens05__cf.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184168' },
             '030123': {}}
 
 # ---- for updating progress bar
