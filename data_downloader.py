@@ -25,7 +25,17 @@ INVENTORY ={'011423': {
                 'HSW_SAI_ne16pg2_L72_1200day_180delay_ens05__MSO2_2.00X.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184165',
                 'HSW_ne16pg2_L72_meanClimate.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184167',
                 'HSW_SAI_ne16pg2_L72_1200day_180delay_ens05__cf.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184168' },
-            '030123': {}}
+            '030123': {'HSW_SAI_ne16pg2_L72_1200day_90delay__ens01_mass1.00X.eam.h2.0001-01-01-00000.regrid.91x180_aave.zonalMean.concat.nc':'https://figshare.com/ndownloader/files/48911890',
+                       'HSW_SAI_ne16pg2_L72_1200day_90delay__ens02_mass1.00X.eam.h2.0001-01-01-00000.regrid.91x180_aave.zonalMean.concat.nc':'https://figshare.com/ndownloader/files/48911893',
+                       'HSW_SAI_ne16pg2_L72_1200day_90delay__ens03_mass1.00X.eam.h2.0001-01-01-00000.regrid.91x180_aave.zonalMean.concat.nc':'https://figshare.com/ndownloader/files/48911896',
+                       'HSW_SAI_ne16pg2_L72_1200day_90delay__ens04_mass1.00X.eam.h2.0001-01-01-00000.regrid.91x180_aave.zonalMean.concat.nc':'https://figshare.com/ndownloader/files/48911899',
+                       'HSW_SAI_ne16pg2_L72_1200day_90delay__ens05_mass1.00X.eam.h2.0001-01-01-00000.regrid.91x180_aave.zonalMean.concat.nc':'https://figshare.com/ndownloader/files/48911902',
+                       'HSW_SAI_ne16pg2_L72_1200day_90delay__ens06_mass1.00X.eam.h2.0001-01-01-00000.regrid.91x180_aave.zonalMean.concat.nc':'https://figshare.com/ndownloader/files/48911905',
+                       'HSW_SAI_ne16pg2_L72_1200day_90delay__ens07_mass1.00X.eam.h2.0001-01-01-00000.regrid.91x180_aave.zonalMean.concat.nc':'https://figshare.com/ndownloader/files/48911911',
+                       'HSW_SAI_ne16pg2_L72_1200day_90delay__ens08_mass1.00X.eam.h2.0001-01-01-00000.regrid.91x180_aave.zonalMean.concat.nc':'https://figshare.com/ndownloader/files/48911923',
+                       'HSW_SAI_ne16pg2_L72_1200day_90delay__ens09_mass1.00X.eam.h2.0001-01-01-00000.regrid.91x180_aave.zonalMean.concat.nc':'https://figshare.com/ndownloader/files/48911926',
+                       'HSW_SAI_ne16pg2_L72_1200day_90delay__ens10_mass1.00X.eam.h2.0001-01-01-00000.regrid.91x180_aave.zonalMean.concat.nc':'https://figshare.com/ndownloader/files/48911929',
+                       'HSW_ne16pg2_L72_meanClimate.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc':'https://figshare.com/ndownloader/files/40184167'}}
 
 # ---- for updating progress bar
 p_increment = 100/(len(INVENTORY['011423'].keys()) + len(INVENTORY['030123'].keys()))

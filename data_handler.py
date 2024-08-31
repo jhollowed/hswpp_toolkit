@@ -30,8 +30,8 @@ MASTER_VAR_FMT = ['{:.2e}', '{:.2e}', '{:.2f}', '{:.1f}', '{:.1f}', '{:.1f}']
 
 DATA_DIR = '{}/data'.format(pathlib.Path(__file__).parent.resolve())
 PROCESSED_DIR = '{}/processed'.format(DATA_DIR)
-DATA_TEMPLATE = {'011423':'HSW_SAI_ne16pg2_L72_1200day_180delay_{ENS}__MSO2_{MASSMAG}.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc', 
-                 '030123':'E3SM_ne16pg2_ne16pg2_L72_FIDEAL_SAI__{ENS}_mass{MASSMAG}.eam.h2.0001-01-01-00000.regrid.91x180_bilin.zonalMean.concat.nc'}
+DATA_TEMPLATE = {'011423':'HSW_SAI_ne16pg2_L72_1200day_180delay_{ENS}__MSO2_{MASSMAG}.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc',
+                 '030123':'HSW_SAI_ne16pg2_L72_1200day_90delay__{ENS}_mass{MASSMAG}.eam.h2.0001-01-01-00000.regrid.91x180_aave.zonalMean.concat.nc'}
 MEAN_CLIMATE = {'011423':'HSW_ne16pg2_L72_meanClimate.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc', 
                 '030123':'HSW_ne16pg2_L72_meanClimate.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc'}
 COUNTER_FACTUAL_TEMPLATE = {'011423':'HSW_SAI_ne16pg2_L72_1200day_180delay_{ENS}__cf.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc', 

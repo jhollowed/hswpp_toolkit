@@ -294,11 +294,11 @@ class Ui_MainWindow(object):
         self.resultsTable.verticalHeader().setStretchLastSection(True)
         
         self.exportCellsButton = QtWidgets.QPushButton(self.resultsPanel)
-        self.exportCellsButton.setEnabled(True)
+        self.exportCellsButton.setEnabled(False) # nothing for now
         self.exportCellsButton.setGeometry(QtCore.QRect(40, 320, 221, 32))
         self.exportCellsButton.setObjectName("exportCellsButton")
         self.exportAllCellsButton = QtWidgets.QPushButton(self.resultsPanel)
-        self.exportAllCellsButton.setEnabled(True)
+        self.exportAllCellsButton.setEnabled(False) # nothing for now 
         self.exportAllCellsButton.setGeometry(QtCore.QRect(260, 320, 221, 32))
         self.exportAllCellsButton.setObjectName("exportAllCellsButton")
 
@@ -309,7 +309,7 @@ class Ui_MainWindow(object):
         self.exportProgressBar.setObjectName("exportProgressBar")
 
         self.helpButton = QtWidgets.QPushButton(self.resultsPanel)
-        self.helpButton.setEnabled(True)
+        self.helpButton.setEnabled(False) # nothing for now
         self.helpButton.setGeometry(QtCore.QRect(630, 320, 141, 31))
         self.helpButton.setStyleSheet("QPushButton{background-color: lightblue; color: black;} "\
                                       "QPushButton::pressed{background-color : blue;}")
@@ -372,7 +372,7 @@ class Ui_MainWindow(object):
                                                 "March release (low variability, 10 members)"))
         self.dataReleaseComboBox.setItemText(1, _translate("MainWindow", 
                                                 "January release (high variability, 5 members)"))
-        self.dataReleaseComboBox.setCurrentIndex(1)
+        self.dataReleaseComboBox.setCurrentIndex(0)
         
         self.anomBaseText.setText(_translate("MainWindow", "Anomaly Base:"))
         self.anomBaseComboBox.setItemText(0, _translate("MainWindow", "Counterfactual"))
@@ -535,8 +535,10 @@ class Ui_MainWindow(object):
             enabledAnomDefs   = ['K']
         elif release_index == 0: # March release (low variability, 10 members)
             enabledEnsMembers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-            enabledMassMags   = [0.25, 0.50, 0.90, 1.00, 1.10, 1.50, 2.00]
-            enabledAnomBases  = ['Counterfactual', 'Mean Climate']
+            #enabledMassMags   = [0.25, 0.50, 0.90, 1.00, 1.10, 1.50, 2.00]
+            enabledMassMags   = [1.0]
+            #enabledAnomBases  = ['Counterfactual', 'Mean Climate']
+            enabledAnomBases  = ['Mean Climate']
             enabledAnomDefs   = ['std', 'K']
 
         # ---- disable options which aren't available
