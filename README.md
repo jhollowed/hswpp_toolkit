@@ -23,10 +23,13 @@ python ./interface.py
 
    - the Data Release (correspondoing to different HSW-V ensembles)
    - the Dataset (corresponding to different ensemble members, or the ensemble mean, of the chose Data Release)
+   - the SO2 Magnitude (corresponding to ensembles in this Data Release of varying eruption magnitudes)
    - the Latitude Bands (defines the northern and southern boundaries of four latitude bands)
    - the Anomaly Base (variable anomalies will be defined with respect to this dataset)
    - the Anomaly Definition (variable anomalies will be defined by this criteria
    - the Pressure Level for Tracers (the three-dimensional tracer fields `SO2` and `SULFATE` will be reduced to a two-dimensional horizontal field at the vertical level nearest this pressure)
+  
+     If any of these options are disabled (faint text, unclickable), then they are not currently available in this release of the Toolkit, or the datasets for those selections do not exist.
   
 4. Press *refresh results table*
 
