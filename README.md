@@ -4,7 +4,7 @@ A graphical interface for computing time series of zonal-average variables of la
 
 ![demo_screenshot](demo.png)
 
-# Getting Started
+# Usage
 
 1. Clone the repository
    
