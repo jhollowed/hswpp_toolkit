@@ -632,7 +632,7 @@ class Ui_MainWindow(object):
         # ---- call computation functions
         dh = data_handler(data_release, dataset, mass_mag, trac_pres, anom_base, anom_def, 
                           anom_n, band_bounds, self.progressBar, self.refreshTableButton,
-                          overwrite=True)
+                          overwrite=False)
         dh.load_data()
         dh.average_lat_bands()
         dh.compute_anomalies()

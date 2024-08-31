@@ -31,7 +31,7 @@ MASTER_VAR_FMT = ['{:.2e}', '{:.2e}', '{:.2f}', '{:.1f}', '{:.1f}', '{:.1f}']
 DATA_DIR = '{}/data'.format(pathlib.Path(__file__).parent.resolve())
 PROCESSED_DIR = '{}/processed'.format(DATA_DIR)
 DATA_TEMPLATE = {'011423':'HSW_SAI_ne16pg2_L72_1200day_180delay_{ENS}__MSO2_{MASSMAG}.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc', 
-                 '030123':''}
+                 '030123':'E3SM_ne16pg2_ne16pg2_L72_FIDEAL_SAI__{ENS}_mass{MASSMAG}.eam.h2.0001-01-01-00000.regrid.91x180_bilin.zonalMean.concat.nc'}
 MEAN_CLIMATE = {'011423':'HSW_ne16pg2_L72_meanClimate.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc', 
                 '030123':'HSW_ne16pg2_L72_meanClimate.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc'}
 COUNTER_FACTUAL_TEMPLATE = {'011423':'HSW_SAI_ne16pg2_L72_1200day_180delay_{ENS}__cf.eam.h2.0001-01-01-00000.regrid.91x180_bilinear.zonalMean.nc', 
@@ -423,7 +423,7 @@ class data_handler:
                                                  self.data_std_file.split('.nc')[0], band)
             try:
                 if(self.overwrite): raise FileNotFoundError
-                self.data_std_avg_band1 = xr.open_data_stdset(fname)
+                self.data_std_avg_band1 = xr.load_dataset(fname)
                 print('read averaged data_std for band {} from {}'.format(band, fname.split('/')[-1]))
             except FileNotFoundError:
                 self.data_std_avg_band1 = self.data_std.sel({'lat' : slice( *band)})
@@ -491,8 +491,8 @@ class data_handler:
             fnameS = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.data_std_file.split('.nc')[0], bandS)
             try:
                 if(self.overwrite): raise FileNotFoundError
-                self.data_std_avg_band2N = xr.open_data_stdset(fnameN)
-                self.data_std_avg_band2S = xr.open_data_stdset(fnameS)
+                self.data_std_avg_band2N = xr.load_dataset(fnameN)
+                self.data_std_avg_band2S = xr.load_dataset(fnameS)
                 print('read averaged data_std for band {} from {}'.format(bandN, fnameN.split('/')[-1]))
                 print('read averaged data_std for band {} from {}'.format(bandS, fnameS.split('/')[-1]))
             except FileNotFoundError:
@@ -581,8 +581,8 @@ class data_handler:
             fnameS = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.data_std_file.split('.nc')[0], bandS)
             try:
                 if(self.overwrite): raise FileNotFoundError
-                self.data_std_avg_band3N = xr.open_data_stdset(fnameN)
-                self.data_std_avg_band3S = xr.open_data_stdset(fnameS)
+                self.data_std_avg_band3N = xr.load_dataset(fnameN)
+                self.data_std_avg_band3S = xr.load_dataset(fnameS)
                 print('read averaged data_std for band {} from {}'.format(bandN, fnameN.split('/')[-1]))
                 print('read averaged data_std for band {} from {}'.format(bandS, fnameS.split('/')[-1]))
             except FileNotFoundError:
@@ -670,8 +670,8 @@ class data_handler:
             fnameS = '{}/{}_Band{}.nc'.format(PROCESSED_DIR, self.data_std_file.split('.nc')[0], bandS)
             try:
                 if(self.overwrite): raise FileNotFoundError
-                self.data_std_avg_band4N = xr.open_data_stdset(fnameN)
-                self.data_std_avg_band4S = xr.open_data_stdset(fnameS)
+                self.data_std_avg_band4N = xr.load_dataset(fnameN)
+                self.data_std_avg_band4S = xr.load_dataset(fnameS)
                 print('read averaged data_std for band {} from {}'.format(bandN, fnameN.split('/')[-1]))
                 print('read averaged data_std for band {} from {}'.format(bandS, fnameS.split('/')[-1]))
             except FileNotFoundError:

@@ -103,7 +103,7 @@ class data_plotter:
 
         # ---- get band limits
         bbounds = self.data_handler.band_bounds
-        self.band_bounds = sorted(((-bbounds[::-1][:-1]).tolist() + bbounds.tolist())[band])
+        self.band_bounds = sorted((bbounds.tolist()[::-1] + (-bbounds[1:]).tolist())[band])
 
     # ==================================================================
 
@@ -153,10 +153,5 @@ class data_plotter:
 
 
 # ==================================================================
-
-
-
-
-
 
 
